@@ -18,6 +18,7 @@ class AforismoManager {
     this._migradoV2 = false;
     this._migradoV3 = false;
     this._migradoV4 = false;
+    this._migradoV5 = false;
   }
 
   /**
@@ -31,6 +32,7 @@ class AforismoManager {
     this._migradoV2 = await this.storage.get('aforismos_migrado_v2', false);
     this._migradoV3 = await this.storage.get('aforismos_migrado_v3', false);
     this._migradoV4 = await this.storage.get('aforismos_migrado_v4', false);
+    this._migradoV5 = await this.storage.get('aforismos_migrado_v5', false);
 
     // Carrega ou cria seed
     let loadedAforismos = await this.storage.get('aforismos_data', null);
@@ -38,13 +40,14 @@ class AforismoManager {
 
     if (loadedAforismos === null) {
       // Primeira vez: usa seed
-      console.log('[AforismoManager] Primeira inicialização. Carregando seed v0.2.0...');
+      console.log('[AforismoManager] Primeira inicialização. Carregando seed v0.3.0...');
       this.aforismos = JSON.parse(JSON.stringify(seedAforismos)); // deep copy
       this.categorias = JSON.parse(JSON.stringify(seedCategorias));
       await this.save();
       await this.storage.set('aforismos_migrado_v2', true);
       await this.storage.set('aforismos_migrado_v3', true);
       await this.storage.set('aforismos_migrado_v4', true);
+      await this.storage.set('aforismos_migrado_v5', true);
       console.log(`[AforismoManager] Seed carregada: ${this.aforismos.length} itens, ${this.categorias.length} categorias`);
     } else {
       // Já tem dados: carrega do storage
@@ -64,6 +67,11 @@ class AforismoManager {
       // Migração de schema v3 → v4 (se necessário)
       if (!this._migradoV4) {
         await this._migrarSchemav3Parav4();
+      }
+
+      // Migração de schema v4 → v5 (se necessário)
+      if (!this._migradoV5) {
+        await this._migrarSchemav4Parav5();
       }
 
       console.log(`[AforismoManager] Dados carregados: ${this.aforismos.length} itens, ${this.categorias.length} categorias`);
@@ -147,6 +155,33 @@ class AforismoManager {
       await this.save();
       await this.storage.set('aforismos_migrado_v4', true);
       console.log('[AforismoManager] Migração v3 → v4 concluída.');
+    }
+  }
+
+  /**
+   * Migra de schema v4 (sem imagens/livros) para v5 (com imagens e livrosRecomendados)
+   * @private
+   */
+  async _migrarSchemav4Parav5() {
+    console.log('[AforismoManager] Migrando schema v4 → v5...');
+    let mudou = false;
+
+    this.aforismos.forEach(a => {
+      // Adiciona arrays de imagens e livros se não existirem
+      if (!Array.isArray(a.imagens)) {
+        a.imagens = [];
+        mudou = true;
+      }
+      if (!Array.isArray(a.livrosRecomendados)) {
+        a.livrosRecomendados = [];
+        mudou = true;
+      }
+    });
+
+    if (mudou) {
+      await this.save();
+      await this.storage.set('aforismos_migrado_v5', true);
+      console.log('[AforismoManager] Migração v4 → v5 concluída.');
     }
   }
 
@@ -404,6 +439,121 @@ class AforismoManager {
     const item = this.obterAforismoId(aforismoId);
     if (!item) return [];
     return item.comentarios || [];
+  }
+
+  // ========== CRUD: Imagens ==========
+
+  /**
+   * Adiciona uma imagem a um aforismo
+   * @param {string} aforismoId
+   * @param {Object} imagem - { url, descricao, width, height }
+   * @returns {string} - ID da imagem
+   */
+  adicionarImagem(aforismoId, imagem) {
+    const item = this.obterAforismoId(aforismoId);
+    if (!item) throw new Error(`Item ${aforismoId} não encontrado`);
+
+    const id = this._gerarId();
+    const novaImagem = {
+      id,
+      url: imagem.url, // data URI
+      descricao: imagem.descricao || '',
+      width: imagem.width || 0,
+      height: imagem.height || 0,
+      addedAt: new Date().toISOString(),
+    };
+
+    if (!Array.isArray(item.imagens)) {
+      item.imagens = [];
+    }
+
+    item.imagens.push(novaImagem);
+    item.updatedAt = new Date().toISOString();
+    this.save();
+    return id;
+  }
+
+  /**
+   * Deleta uma imagem
+   * @param {string} aforismoId
+   * @param {string} imagemId
+   */
+  deletarImagem(aforismoId, imagemId) {
+    const item = this.obterAforismoId(aforismoId);
+    if (!item) throw new Error(`Item ${aforismoId} não encontrado`);
+
+    if (!Array.isArray(item.imagens)) return;
+
+    const idx = item.imagens.findIndex(i => i.id === imagemId);
+    if (idx === -1) throw new Error(`Imagem ${imagemId} não encontrada`);
+
+    item.imagens.splice(idx, 1);
+    item.updatedAt = new Date().toISOString();
+    this.save();
+  }
+
+  // ========== CRUD: Livros Recomendados ==========
+
+  /**
+   * Adiciona um livro recomendado
+   * @param {string} aforismoId
+   * @param {Object} livro - { titulo, autor, isbn, marketplace, urlAfiliado, comoRelacionado }
+   * @returns {string} - ID do livro
+   */
+  adicionarLivroRecomendado(aforismoId, livro) {
+    const item = this.obterAforismoId(aforismoId);
+    if (!item) throw new Error(`Item ${aforismoId} não encontrado`);
+
+    const id = this._gerarId();
+    const novoLivro = {
+      id,
+      titulo: livro.titulo,
+      autor: livro.autor || '',
+      isbn: livro.isbn || '',
+      marketplace: livro.marketplace || 'amazon',
+      urlAfiliado: livro.urlAfiliado,
+      comoRelacionado: livro.comoRelacionado || '',
+      addedAt: new Date().toISOString(),
+    };
+
+    if (!Array.isArray(item.livrosRecomendados)) {
+      item.livrosRecomendados = [];
+    }
+
+    item.livrosRecomendados.push(novoLivro);
+    item.updatedAt = new Date().toISOString();
+    this.save();
+    return id;
+  }
+
+  /**
+   * Deleta um livro recomendado
+   * @param {string} aforismoId
+   * @param {string} livroId
+   */
+  deletarLivroRecomendado(aforismoId, livroId) {
+    const item = this.obterAforismoId(aforismoId);
+    if (!item) throw new Error(`Item ${aforismoId} não encontrado`);
+
+    if (!Array.isArray(item.livrosRecomendados)) return;
+
+    const idx = item.livrosRecomendados.findIndex(l => l.id === livroId);
+    if (idx === -1) throw new Error(`Livro ${livroId} não encontrado`);
+
+    item.livrosRecomendados.splice(idx, 1);
+    item.updatedAt = new Date().toISOString();
+    this.save();
+  }
+
+  /**
+   * Retorna livros recomendados de um aforismo
+   * @param {string} aforismoId
+   * @returns {Array}
+   */
+  obterLivrosRecomendados(aforismoId) {
+    const item = this.obterAforismoId(aforismoId);
+    if (!item) return [];
+    return item.livrosRecomendados || [];
   }
 
   // ========== Helpers ==========
