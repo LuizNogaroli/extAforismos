@@ -51,6 +51,12 @@ const modalAforismoLeitura = {
           ${aforismo.tags.map(t => `<span class="tag">#${esc(t)}</span>`).join('')}
         </div>
       ` : ''}
+
+      ${aforismo.tipo && aforismo.tipo !== 'aforismo' ? `
+        <div class="modal-tipo-badge">
+          [${aforismo.tipo.charAt(0).toUpperCase() + aforismo.tipo.slice(1)}]
+        </div>
+      ` : ''}
     `;
 
     // Atualiza botão de favorito
@@ -61,6 +67,9 @@ const modalAforismoLeitura = {
 
     // Renderiza botões de compartilhamento
     this.renderizarCompartilhamento(aforismo);
+
+    // Renderiza seção de comentários
+    this.renderizarComentarios(aforismo);
   },
 
   renderizarCompartilhamento(aforismo) {
@@ -128,5 +137,82 @@ const modalAforismoLeitura = {
         `
       )
       .join('');
+  },
+
+  renderizarComentarios(aforismo) {
+    const container = document.getElementById('comentarios-container');
+    if (!container) return;
+
+    const comentarios = aforismo.comentarios || [];
+
+    if (comentarios.length === 0) {
+      container.innerHTML = `
+        <div class="comentarios-vazio">
+          <p>Sem comentários ainda. Seja o primeiro a comentar!</p>
+        </div>
+        <div class="comentario-form">
+          <textarea
+            id="comentario-novo-texto"
+            placeholder="Sua interpretação, curiosidade ou contexto..."
+            rows="3"
+            class="input-textarea"
+          ></textarea>
+          <select id="comentario-novo-tipo" class="input-select">
+            <option value="interpretacao">Interpretação</option>
+            <option value="curiosidade">Curiosidade</option>
+            <option value="contexto">Contexto</option>
+            <option value="erro">Erro/Correção</option>
+          </select>
+          <button id="btn-adicionar-comentario" class="btn primary">
+            + Adicionar Comentário
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    let html = `<div class="comentarios-lista">`;
+
+    comentarios.forEach(c => {
+      html += `
+        <div class="comentario-item">
+          <div class="comentario-header">
+            <span class="comentario-tipo ${c.tipo}">[${c.tipo}]</span>
+            <span class="comentario-autor">— ${esc(c.autor)}</span>
+            <span class="comentario-data">${new Date(c.createdAt).toLocaleDateString('pt-BR')}</span>
+            <button class="btn-deletar-comentario" onclick="app.deletarComentarioDoModal('${aforismo.id}', '${c.id}')">
+              ✕
+            </button>
+          </div>
+          <div class="comentario-texto">
+            ${esc(c.texto)}
+          </div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+
+    html += `
+      <div class="comentario-form">
+        <textarea
+          id="comentario-novo-texto"
+          placeholder="Sua interpretação, curiosidade ou contexto..."
+          rows="3"
+          class="input-textarea"
+        ></textarea>
+        <select id="comentario-novo-tipo" class="input-select">
+          <option value="interpretacao">Interpretação</option>
+          <option value="curiosidade">Curiosidade</option>
+          <option value="contexto">Contexto</option>
+          <option value="erro">Erro/Correção</option>
+        </select>
+        <button id="btn-adicionar-comentario" class="btn primary">
+          + Adicionar Comentário
+        </button>
+      </div>
+    `;
+
+    container.innerHTML = html;
   },
 };

@@ -806,6 +806,183 @@ body {
   font-weight: bold;
 }
 
+/* ========== COMENTÁRIOS ========== */
+.modal-comentarios {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.modal-comentarios-label {
+  font-size: 0.95em;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.comentarios-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.comentarios-vazio {
+  padding: 16px;
+  background: var(--bg-alt, var(--bg));
+  border-radius: var(--radius);
+  border: 1px dashed var(--border);
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.comentarios-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.comentario-item {
+  padding: 12px;
+  background: var(--bg-alt, var(--bg));
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+}
+
+.comentario-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.85em;
+  flex-wrap: wrap;
+}
+
+.comentario-tipo {
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 0.75em;
+}
+
+.comentario-tipo.interpretacao {
+  background: #e8f4f8;
+  color: #0066cc;
+}
+
+.comentario-tipo.curiosidade {
+  background: #fff4e6;
+  color: #ff8c00;
+}
+
+.comentario-tipo.contexto {
+  background: #f0e8f8;
+  color: #7030a0;
+}
+
+.comentario-tipo.erro {
+  background: #ffe8e8;
+  color: #cc0000;
+}
+
+@media (prefers-color-scheme: dark) {
+  .comentario-tipo.interpretacao {
+    background: #1a3a4a;
+    color: #66ccff;
+  }
+
+  .comentario-tipo.curiosidade {
+    background: #4a3a1a;
+    color: #ffaa00;
+  }
+
+  .comentario-tipo.contexto {
+    background: #3a1a4a;
+    color: #cc66ff;
+  }
+
+  .comentario-tipo.erro {
+    background: #4a1a1a;
+    color: #ff6666;
+  }
+}
+
+.comentario-autor {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.comentario-data {
+  color: var(--text-muted);
+  font-size: 0.8em;
+  margin-left: auto;
+}
+
+.btn-deletar-comentario {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 0.9em;
+  transition: color 0.2s;
+}
+
+.btn-deletar-comentario:hover {
+  color: var(--accent);
+}
+
+.comentario-texto {
+  color: var(--text);
+  font-size: 0.9em;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.comentario-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-alt, var(--bg));
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.comentario-form .input-textarea {
+  min-height: 80px;
+  font-size: 0.9em;
+  resize: vertical;
+}
+
+.comentario-form .input-select {
+  font-size: 0.9em;
+}
+
+.comentario-form .btn {
+  align-self: flex-start;
+}
+
+/* Badge do tipo de item (aforismo, citação, filme, dito) */
+.modal-tipo-badge {
+  margin-top: 12px;
+  padding: 6px 12px;
+  background: var(--accent-light, #f0e8f8);
+  color: var(--accent, #7030a0);
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
+}
+
 /* ========== RESPONSIVIDADE ========== */
 @media (max-width: 768px) {
   .aforismo-card {

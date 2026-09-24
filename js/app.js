@@ -142,6 +142,9 @@ class App {
 
     // Atualiza botões de navegação modal
     this._atualizarBotoesNavegacaoModal();
+
+    // Setup listeners para comentários
+    this._setupListenersComentarios();
   }
 
   /**
@@ -230,6 +233,65 @@ class App {
     if (filtros.paginaAtual < resultado.paginas) {
       filtros.paginaAtual++;
       this.renderListagem();
+    }
+  }
+
+  /**
+   * Adiciona comentário ao aforismo do modal
+   */
+  adicionarComentarioDoModal() {
+    if (this._indiceAtualModal === null) return;
+    const aforismo = this._listaFiltradaParaModal[this._indiceAtualModal];
+    if (!aforismo) return;
+
+    const textarea = document.getElementById('comentario-novo-texto');
+    const selectTipo = document.getElementById('comentario-novo-tipo');
+
+    if (!textarea || !selectTipo) return;
+
+    const texto = textarea.value.trim();
+    if (!texto) {
+      alert('Escreva um comentário!');
+      return;
+    }
+
+    aforismoManager.adicionarComentario(aforismo.id, {
+      tipo: selectTipo.value,
+      texto: texto,
+      autor: 'Você',
+    });
+
+    // Re-renderiza o modal
+    modalAforismoLeitura.renderizar(aforismo, aforismoManager);
+
+    // Limpa o textarea
+    textarea.value = '';
+  }
+
+  /**
+   * Deleta comentário do aforismo do modal
+   * @param {string} aforismoId
+   * @param {string} comentarioId
+   */
+  deletarComentarioDoModal(aforismoId, comentarioId) {
+    if (confirm('Excluir este comentário?')) {
+      aforismoManager.deletarComentario(aforismoId, comentarioId);
+
+      const aforismo = aforismoManager.obterAforismoId(aforismoId);
+      if (aforismo) {
+        modalAforismoLeitura.renderizar(aforismo, aforismoManager);
+      }
+    }
+  }
+
+  /**
+   * Setup de listeners para comentários no modal
+   * @private
+   */
+  _setupListenersComentarios() {
+    const btnAdicionar = document.getElementById('btn-adicionar-comentario');
+    if (btnAdicionar) {
+      btnAdicionar.onclick = () => this.adicionarComentarioDoModal();
     }
   }
 
