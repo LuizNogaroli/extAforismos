@@ -68,8 +68,89 @@ const modalAforismoLeitura = {
     // Renderiza botões de compartilhamento
     this.renderizarCompartilhamento(aforismo);
 
+    // Renderiza seção de iconografia
+    this.renderizarIconografia(aforismo);
+
     // Renderiza seção de comentários
     this.renderizarComentarios(aforismo);
+
+    // Renderiza seção de biblioteca
+    this.renderizarBiblioteca(aforismo);
+  },
+
+  renderizarIconografia(aforismo) {
+    const container = document.getElementById('iconografia-container');
+    if (!container) return;
+
+    const imagens = aforismo.imagens || [];
+
+    if (imagens.length === 0) {
+      container.innerHTML = `<p class="vazio-pequeno">Nenhuma imagem adicionada.</p>`;
+      return;
+    }
+
+    let html = '<div class="galeria-imagens">';
+
+    imagens.forEach((img, idx) => {
+      html += `
+        <div class="imagem-item">
+          <img src="${esc(img.url)}" alt="${esc(img.descricao)}" class="imagem-thumbnail">
+          <div class="imagem-descricao">${esc(img.descricao)}</div>
+          <button class="btn-deletar-imagem" onclick="app.deletarImagemDoModal('${aforismo.id}', '${img.id}')">
+            ✕
+          </button>
+        </div>
+      `;
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
+  },
+
+  renderizarBiblioteca(aforismo) {
+    const container = document.getElementById('biblioteca-container');
+    if (!container) return;
+
+    const livros = aforismo.livrosRecomendados || [];
+
+    if (livros.length === 0) {
+      container.innerHTML = `<p class="vazio-pequeno">Nenhum livro recomendado.</p>`;
+      return;
+    }
+
+    const marketplaceLabels = {
+      amazon: '🛒 Amazon',
+      skoob: '📚 Skoob',
+      'livraria-cultura': '📖 Livraria Cultura',
+    };
+
+    let html = '<div class="livros-lista">';
+
+    livros.forEach(livro => {
+      const marketplaceLabel = marketplaceLabels[livro.marketplace] || livro.marketplace;
+
+      html += `
+        <div class="livro-item">
+          <div class="livro-header">
+            <div class="livro-titulo">${esc(livro.titulo)}</div>
+            <button class="btn-deletar-livro" onclick="app.deletarLivroDoModal('${aforismo.id}', '${livro.id}')">
+              ✕
+            </button>
+          </div>
+          <div class="livro-autor">${esc(livro.autor)}</div>
+          <div class="livro-relacionado">${esc(livro.comoRelacionado)}</div>
+          <div class="livro-links">
+            <a href="${esc(livro.urlAfiliado)}" target="_blank" rel="noopener noreferrer" class="link-afiliado">
+              ${marketplaceLabel}
+            </a>
+            <span class="disclosure">*Afiliado</span>
+          </div>
+        </div>
+      `;
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
   },
 
   renderizarCompartilhamento(aforismo) {

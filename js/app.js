@@ -288,6 +288,34 @@ class App {
   }
 
   /**
+   * Deleta imagem do aforismo do modal
+   */
+  deletarImagemDoModal(aforismoId, imagemId) {
+    if (confirm('Excluir esta imagem?')) {
+      aforismoManager.deletarImagem(aforismoId, imagemId);
+
+      const aforismo = aforismoManager.obterAforismoId(aforismoId);
+      if (aforismo) {
+        modalAforismoLeitura.renderizar(aforismo, aforismoManager);
+      }
+    }
+  }
+
+  /**
+   * Deleta livro recomendado do aforismo do modal
+   */
+  deletarLivroDoModal(aforismoId, livroId) {
+    if (confirm('Remover este livro da recomendação?')) {
+      aforismoManager.deletarLivroRecomendado(aforismoId, livroId);
+
+      const aforismo = aforismoManager.obterAforismoId(aforismoId);
+      if (aforismo) {
+        modalAforismoLeitura.renderizar(aforismo, aforismoManager);
+      }
+    }
+  }
+
+  /**
    * Setup de listeners para comentários no modal
    * @private
    */

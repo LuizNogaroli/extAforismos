@@ -983,6 +983,202 @@ body {
   display: inline-block;
 }
 
+/* ========== ICONOGRAFIA ========== */
+.modal-iconografia {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.modal-iconografia-label {
+  font-size: 0.95em;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.iconografia-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.galeria-imagens {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.imagem-item {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-alt, var(--bg));
+}
+
+.imagem-thumbnail {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+.imagem-descricao {
+  padding: 6px;
+  font-size: 0.8em;
+  color: var(--text-muted);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-deletar-imagem {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  font-size: 0.9em;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.btn-deletar-imagem:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.vazio-pequeno {
+  padding: 12px;
+  background: var(--bg-alt, var(--bg));
+  border-radius: var(--radius);
+  border: 1px dashed var(--border);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9em;
+  font-style: italic;
+}
+
+/* ========== BIBLIOTECA ========== */
+.modal-biblioteca {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.modal-biblioteca-label {
+  font-size: 0.95em;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.biblioteca-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.livros-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.livro-item {
+  padding: 12px;
+  background: var(--bg-alt, var(--bg));
+  border-left: 3px solid var(--primary);
+  border-radius: 4px;
+}
+
+.livro-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.livro-titulo {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.95em;
+  flex: 1;
+}
+
+.livro-autor {
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 0.85em;
+  margin-bottom: 4px;
+}
+
+.livro-relacionado {
+  color: var(--text-muted);
+  font-size: 0.8em;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.livro-links {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.link-afiliado {
+  display: inline-block;
+  padding: 4px 8px;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  border-radius: 3px;
+  font-size: 0.85em;
+  transition: background 0.2s;
+}
+
+.link-afiliado:hover {
+  background: var(--primary-dark, var(--primary));
+  opacity: 0.9;
+}
+
+.disclosure {
+  font-size: 0.75em;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.btn-deletar-livro {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 0.9em;
+  transition: color 0.2s;
+}
+
+.btn-deletar-livro:hover {
+  color: var(--accent);
+}
+
 /* ========== RESPONSIVIDADE ========== */
 @media (max-width: 768px) {
   .aforismo-card {
