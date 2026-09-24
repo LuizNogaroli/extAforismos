@@ -1,7 +1,8 @@
 /**
- * Seed de Categorias Iniciais (8 sugestões)
+ * Seed de Categorias Iniciais (10 sugestões)
  *
  * Usado quando o usuário abre a extensão pela primeira vez.
+ * Fase 1 (v0.2.0): adiciona Filmes e Ditos Populares
  * Ver: docs/MANUAL_TECNICO.md §3.6
  */
 
@@ -44,6 +45,16 @@ const seedCategorias = [
   {
     id: 'cat-virtude',
     nome: 'Virtude',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-filmes',
+    nome: 'Filmes',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'cat-ditos',
+    nome: 'Ditos Populares',
     createdAt: new Date().toISOString(),
   },
 ];

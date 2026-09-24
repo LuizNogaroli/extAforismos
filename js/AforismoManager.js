@@ -15,7 +15,9 @@ class AforismoManager {
     this.storage = storage;
     this.aforismos = [];
     this.categorias = [];
-    this._migrado = false;
+    this._migradoV2 = false;
+    this._migradoV3 = false;
+    this._migradoV4 = false;
   }
 
   /**
@@ -25,8 +27,10 @@ class AforismoManager {
   async init() {
     console.log('[AforismoManager] Inicializando...');
 
-    // Verifica se já foi migrado de schema v1 para v2
-    this._migrado = await this.storage.get('aforismos_migrado_v2', false);
+    // Verifica flags de migração
+    this._migradoV2 = await this.storage.get('aforismos_migrado_v2', false);
+    this._migradoV3 = await this.storage.get('aforismos_migrado_v3', false);
+    this._migradoV4 = await this.storage.get('aforismos_migrado_v4', false);
 
     // Carrega ou cria seed
     let loadedAforismos = await this.storage.get('aforismos_data', null);
@@ -34,22 +38,35 @@ class AforismoManager {
 
     if (loadedAforismos === null) {
       // Primeira vez: usa seed
-      console.log('[AforismoManager] Primeira inicialização. Carregando seed...');
+      console.log('[AforismoManager] Primeira inicialização. Carregando seed v0.2.0...');
       this.aforismos = JSON.parse(JSON.stringify(seedAforismos)); // deep copy
       this.categorias = JSON.parse(JSON.stringify(seedCategorias));
       await this.save();
-      console.log(`[AforismoManager] Seed carregada: ${this.aforismos.length} aforismos, ${this.categorias.length} categorias`);
+      await this.storage.set('aforismos_migrado_v2', true);
+      await this.storage.set('aforismos_migrado_v3', true);
+      await this.storage.set('aforismos_migrado_v4', true);
+      console.log(`[AforismoManager] Seed carregada: ${this.aforismos.length} itens, ${this.categorias.length} categorias`);
     } else {
       // Já tem dados: carrega do storage
       this.aforismos = loadedAforismos || [];
       this.categorias = loadedCategorias || [];
 
-      // Migração de schema (se necessário)
-      if (!this._migrado) {
+      // Migração de schema v1 → v2 (se necessário)
+      if (!this._migradoV2) {
         await this._migrarSchemav1Parav2();
       }
 
-      console.log(`[AforismoManager] Dados carregados: ${this.aforismos.length} aforismos, ${this.categorias.length} categorias`);
+      // Migração de schema v2 → v3 (se necessário)
+      if (!this._migradoV3) {
+        await this._migrarSchemav2Parav3();
+      }
+
+      // Migração de schema v3 → v4 (se necessário)
+      if (!this._migradoV4) {
+        await this._migrarSchemav3Parav4();
+      }
+
+      console.log(`[AforismoManager] Dados carregados: ${this.aforismos.length} itens, ${this.categorias.length} categorias`);
     }
   }
 
@@ -72,7 +89,64 @@ class AforismoManager {
     if (mudou) {
       await this.save();
       await this.storage.set('aforismos_migrado_v2', true);
-      console.log('[AforismoManager] Migração concluída.');
+      console.log('[AforismoManager] Migração v1 → v2 concluída.');
+    }
+  }
+
+  /**
+   * Migra de schema v2 (sem tipo) para v3 (com tipo + campos de citação)
+   * @private
+   */
+  async _migrarSchemav2Parav3() {
+    console.log('[AforismoManager] Migrando schema v2 → v3...');
+    let mudou = false;
+
+    this.aforismos.forEach(a => {
+      // Adiciona campo `tipo` se não existir (padrão: aforismo)
+      if (a.tipo === undefined) {
+        a.tipo = 'aforismo';
+        mudou = true;
+      }
+
+      // Adiciona campos de citação com valores padrão
+      if (a.leitura_completa === undefined) a.leitura_completa = false;
+      if (a.contexto === undefined) a.contexto = '';
+      if (a.pagina === undefined) a.pagina = null;
+      if (a.edicao === undefined) a.edicao = null;
+      if (a.generoLiterario === undefined) a.generoLiterario = '';
+      if (a.anoPublicacao === undefined) a.anoPublicacao = a.anoReferencia || null;
+
+      if (mudou) console.log(`[AforismoManager] Migrou v2→v3: ${a.id}`);
+    });
+
+    if (mudou) {
+      await this.save();
+      await this.storage.set('aforismos_migrado_v3', true);
+      console.log('[AforismoManager] Migração v2 → v3 concluída.');
+    }
+  }
+
+  /**
+   * Migra de schema v3 (sem comentários) para v4 (com comentários)
+   * @private
+   */
+  async _migrarSchemav3Parav4() {
+    console.log('[AforismoManager] Migrando schema v3 → v4...');
+    let mudou = false;
+
+    this.aforismos.forEach(a => {
+      // Adiciona array de comentários se não existir
+      if (!Array.isArray(a.comentarios)) {
+        a.comentarios = [];
+        mudou = true;
+        console.log(`[AforismoManager] Migrou v3→v4: ${a.id}`);
+      }
+    });
+
+    if (mudou) {
+      await this.save();
+      await this.storage.set('aforismos_migrado_v4', true);
+      console.log('[AforismoManager] Migração v3 → v4 concluída.');
     }
   }
 
@@ -88,32 +162,40 @@ class AforismoManager {
   // ========== CRUD: Aforismos ==========
 
   /**
-   * Cria um novo aforismo
-   * @param {Object} dados - { texto, autor, obra, epoca, anoReferencia, idiomaOriginal, textoOriginal, categoriaIds, tags, notas, favorito }
-   * @returns {string} - ID do aforismo criado
+   * Cria um novo aforismo/citação/filme/dito
+   * @param {Object} dados - { tipo, texto, autor, obra, epoca, anoReferencia, categoriaIds, tags, notas, favorito, ... }
+   * @returns {string} - ID criado
    */
   criarAforismos(dados) {
     const id = this._gerarId();
     const agora = new Date().toISOString();
 
-    const aforismo = {
+    const item = {
       id,
+      tipo: dados.tipo || 'aforismo',
       texto: dados.texto,
       autor: dados.autor || null,
       obra: dados.obra || null,
       epoca: dados.epoca || null,
       anoReferencia: dados.anoReferencia || null,
+      anoPublicacao: dados.anoPublicacao || dados.anoReferencia || null,
       idiomaOriginal: dados.idiomaOriginal || null,
       textoOriginal: dados.textoOriginal || null,
+      contexto: dados.contexto || '',
+      pagina: dados.pagina || null,
+      edicao: dados.edicao || null,
+      generoLiterario: dados.generoLiterario || '',
+      leitura_completa: dados.leitura_completa || false,
       categoriaIds: Array.isArray(dados.categoriaIds) ? dados.categoriaIds : [],
       tags: this._normalizarTags(dados.tags),
       favorito: dados.favorito || false,
       notas: dados.notas || '',
+      comentarios: [],
       createdAt: agora,
       updatedAt: agora,
     };
 
-    this.aforismos.push(aforismo);
+    this.aforismos.push(item);
     this.save();
     return id;
   }
@@ -261,6 +343,67 @@ class AforismoManager {
       a.tags.forEach(t => tags.add(t));
     });
     return Array.from(tags).sort();
+  }
+
+  // ========== CRUD: Comentários ==========
+
+  /**
+   * Adiciona um comentário a um aforismo
+   * @param {string} aforismoId - ID do aforismo
+   * @param {Object} comentario - { tipo, texto, autor }
+   * @returns {string} - ID do comentário
+   */
+  adicionarComentario(aforismoId, comentario) {
+    const item = this.obterAforismoId(aforismoId);
+    if (!item) throw new Error(`Item ${aforismoId} não encontrado`);
+
+    const id = this._gerarId();
+    const novoComentario = {
+      id,
+      tipo: comentario.tipo || 'interpretacao',
+      texto: comentario.texto,
+      autor: comentario.autor || 'Você',
+      createdAt: new Date().toISOString(),
+    };
+
+    if (!Array.isArray(item.comentarios)) {
+      item.comentarios = [];
+    }
+
+    item.comentarios.push(novoComentario);
+    item.updatedAt = new Date().toISOString();
+    this.save();
+    return id;
+  }
+
+  /**
+   * Deleta um comentário
+   * @param {string} aforismoId
+   * @param {string} comentarioId
+   */
+  deletarComentario(aforismoId, comentarioId) {
+    const item = this.obterAforismoId(aforismoId);
+    if (!item) throw new Error(`Item ${aforismoId} não encontrado`);
+
+    if (!Array.isArray(item.comentarios)) return;
+
+    const idx = item.comentarios.findIndex(c => c.id === comentarioId);
+    if (idx === -1) throw new Error(`Comentário ${comentarioId} não encontrado`);
+
+    item.comentarios.splice(idx, 1);
+    item.updatedAt = new Date().toISOString();
+    this.save();
+  }
+
+  /**
+   * Retorna comentários de um aforismo
+   * @param {string} aforismoId
+   * @returns {Array}
+   */
+  obterComentarios(aforismoId) {
+    const item = this.obterAforismoId(aforismoId);
+    if (!item) return [];
+    return item.comentarios || [];
   }
 
   // ========== Helpers ==========
