@@ -310,19 +310,30 @@
       <div class="modal-content-vintage">
         <!-- Preenchido por JS -->
       </div>
-      <div class="modal-footer-vintage">
-        <button id="btn-modal-anterior" class="btn ghost" onclick="app.navegarModalAnterior()">
-          ‹ Anterior
-        </button>
-        <button id="btn-modal-editar" class="btn ghost" onclick="app.editarAforismoDoModal()">
-          ✎ Editar
-        </button>
-        <button id="btn-modal-favorito" class="btn ghost" onclick="app.toggleFavoritoDoModal()">
-          ★ Favorito
-        </button>
-        <button id="btn-modal-proxximo" class="btn ghost" onclick="app.navegarModalProximo()">
-          Próximo ›
-        </button>
+      <div class="modal-acao-superior">
+        <div class="modal-botoes-esquerda">
+          <button id="btn-modal-anterior" class="btn ghost" onclick="app.navegarModalAnterior()">
+            ‹ Anterior
+          </button>
+          <button id="btn-modal-proxximo" class="btn ghost" onclick="app.navegarModalProximo()">
+            Próximo ›
+          </button>
+        </div>
+        <div class="modal-botoes-direita">
+          <button id="btn-modal-editar" class="btn ghost" onclick="app.editarAforismoDoModal()">
+            ✎ Editar
+          </button>
+          <button id="btn-modal-favorito" class="btn ghost" onclick="app.toggleFavoritoDoModal()">
+            ★ Favorito
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-compartilhar">
+        <div class="compartilhar-label">Compartilhar:</div>
+        <div class="compartilhar-botoes" id="compartilhar-botoes">
+          <!-- Preenchido por JS -->
+        </div>
       </div>
     </div>
   </div>

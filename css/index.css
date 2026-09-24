@@ -646,14 +646,78 @@ body {
   border-top: 1px solid var(--border);
 }
 
-.modal-footer-vintage {
+.modal-acao-superior {
   display: flex;
-  gap: 12px;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 24px;
   padding-top: 16px;
+  padding-bottom: 16px;
   border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  gap: 16px;
   flex-wrap: wrap;
+}
+
+.modal-botoes-esquerda {
+  display: flex;
+  gap: 12px;
+}
+
+.modal-botoes-direita {
+  display: flex;
+  gap: 12px;
+}
+
+.modal-compartilhar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.compartilhar-label {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.compartilhar-botoes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.compartilhar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+  transition: all 0.2s;
+  border: 1px solid var(--primary);
+  cursor: pointer;
+}
+
+.compartilhar-btn:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  transform: scale(1.1);
+}
+
+.compartilhar-btn:active {
+  transform: scale(0.95);
 }
 
 /* ========== FORMULÁRIO ========== */

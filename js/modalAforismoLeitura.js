@@ -1,5 +1,5 @@
 /**
- * modalAforismoLeitura.js — Modal vintage de leitura
+ * modalAforismoLeitura.js — Modal vintage de leitura com compartilhamento
  */
 
 const modalAforismoLeitura = {
@@ -58,5 +58,75 @@ const modalAforismoLeitura = {
     if (btnFav) {
       btnFav.textContent = aforismo.favorito ? '★ Favorito' : '☆ Favoritar';
     }
+
+    // Renderiza botões de compartilhamento
+    this.renderizarCompartilhamento(aforismo);
+  },
+
+  renderizarCompartilhamento(aforismo) {
+    const container = document.getElementById('compartilhar-botoes');
+    if (!container) return;
+
+    // Texto para compartilhar
+    const texto = aforismo.texto.substring(0, 100) + (aforismo.texto.length > 100 ? '...' : '');
+    const autoria = aforismo.autor ? `— ${aforismo.autor}` : '';
+    const textoComAutoria = `"${texto}"\n\n${autoria}`;
+    const url = window.location.href;
+
+    // URLs de compartilhamento
+    const links = [
+      {
+        nome: 'X',
+        icon: '𝕏',
+        url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(textoComAutoria)}&url=${encodeURIComponent(url)}`,
+        title: 'Compartilhar no X (Twitter)',
+      },
+      {
+        nome: 'Facebook',
+        icon: 'f',
+        url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(textoComAutoria)}`,
+        title: 'Compartilhar no Facebook',
+      },
+      {
+        nome: 'WhatsApp',
+        icon: 'W',
+        url: `https://wa.me/?text=${encodeURIComponent(textoComAutoria + '\n\n' + url)}`,
+        title: 'Compartilhar no WhatsApp',
+      },
+      {
+        nome: 'LinkedIn',
+        icon: 'in',
+        url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+        title: 'Compartilhar no LinkedIn',
+      },
+      {
+        nome: 'Pinterest',
+        icon: 'P',
+        url: `https://pinterest.com/pin/create/button/?description=${encodeURIComponent(textoComAutoria)}&url=${encodeURIComponent(url)}`,
+        title: 'Compartilhar no Pinterest',
+      },
+      {
+        nome: 'Email',
+        icon: '✉️',
+        url: `mailto:?subject=Aforismo&body=${encodeURIComponent(textoComAutoria + '\n\n' + url)}`,
+        title: 'Compartilhar por Email',
+      },
+    ];
+
+    container.innerHTML = links
+      .map(
+        link => `
+          <a
+            href="${link.url}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="compartilhar-btn"
+            title="${link.title}"
+          >
+            ${link.icon}
+          </a>
+        `
+      )
+      .join('');
   },
 };
