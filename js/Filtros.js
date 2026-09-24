@@ -300,6 +300,9 @@ class Filtros {
       case 'tag':
         this.tags = this.tags.filter(t => t !== valor);
         break;
+      case 'tipo':
+        this.tipos = this.tipos.filter(t => t !== valor);
+        break;
       case 'autor':
         this.autor = null;
         break;
