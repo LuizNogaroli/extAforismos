@@ -39,6 +39,9 @@ class App {
       // Setup de listeners de filtro
       this._setupListenersForiltros();
 
+      // Inicializa filtro de tipo
+      this._inicializarFiltroTipo();
+
       // Renderiza primeira vez
       this.renderListagem();
 
@@ -334,6 +337,45 @@ class App {
     } else {
       html.setAttribute('data-theme', tema);
     }
+  }
+
+  /**
+   * Inicializa filtro de tipo (aforismo, citacao, filme, dito)
+   * @private
+   */
+  _inicializarFiltroTipo() {
+    const container = document.getElementById('filtro-tipo');
+    if (!container) return;
+
+    const tipos = ['aforismo', 'citacao', 'filme', 'dito'];
+    const labels = {
+      aforismo: '📖 Aforismo',
+      citacao: '📚 Citação',
+      filme: '🎬 Filme',
+      dito: '💬 Dito',
+    };
+
+    container.innerHTML = '';
+
+    tipos.forEach(tipo => {
+      const pill = document.createElement('button');
+      pill.className = 'filtro-pill';
+      pill.textContent = labels[tipo];
+      pill.dataset.tipo = tipo;
+      pill.onclick = () => {
+        if (filtros.tipos.includes(tipo)) {
+          filtros.tipos = filtros.tipos.filter(t => t !== tipo);
+          pill.classList.remove('active');
+        } else {
+          filtros.tipos.push(tipo);
+          pill.classList.add('active');
+        }
+        filtros.paginaAtual = 1;
+        this.renderListagem();
+      };
+
+      container.appendChild(pill);
+    });
   }
 
   /**

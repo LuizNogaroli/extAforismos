@@ -16,6 +16,7 @@ class Filtros {
     this.categoriasLogica = 'any';      // 'any' = OR, 'all' = AND
     this.tags = [];                     // tags selecionadas
     this.tagsLogica = 'any';            // 'any' = OR, 'all' = AND
+    this.tipos = [];                    // tipos: "aforismo", "citacao", "filme", "dito"
     this.autor = null;                  // autor específico ou null
     this.periodoAno = [null, null];     // [min, max] para anoReferencia
     this.favoritos = false;             // só mostrar favoritos?
@@ -71,12 +72,20 @@ class Filtros {
       });
     }
 
-    // 4. Filtro: autor
+    // 4. Filtro: tipo (aforismo, citacao, filme, dito)
+    if (this.tipos.length > 0) {
+      resultado = resultado.filter(a => {
+        const tipo = a.tipo || 'aforismo'; // padrão para dados antigos
+        return this.tipos.includes(tipo);
+      });
+    }
+
+    // 5. Filtro: autor
     if (this.autor !== null) {
       resultado = resultado.filter(a => a.autor === this.autor);
     }
 
-    // 5. Filtro: época (anoReferencia entre min e max)
+    // 6. Filtro: época (anoReferencia entre min e max)
     if (this.periodoAno[0] !== null || this.periodoAno[1] !== null) {
       const [min, max] = this.periodoAno;
       resultado = resultado.filter(a => {
@@ -88,15 +97,15 @@ class Filtros {
       });
     }
 
-    // 6. Filtro: favoritos
+    // 7. Filtro: favoritos
     if (this.favoritos) {
       resultado = resultado.filter(a => a.favorito === true);
     }
 
-    // 7. Ordenação
+    // 8. Ordenação
     resultado = this._ordenar(resultado);
 
-    // 8. Paginação
+    // 9. Paginação
     const total = resultado.length;
     const paginas = Math.max(1, Math.ceil(total / this.itensPorPagina));
     const pagina = Math.min(this.paginaAtual, paginas); // garante que página válida
@@ -173,6 +182,7 @@ class Filtros {
     this.categoriasLogica = 'any';
     this.tags = [];
     this.tagsLogica = 'any';
+    this.tipos = [];
     this.autor = null;
     this.periodoAno = [null, null];
     this.favoritos = false;
@@ -188,6 +198,7 @@ class Filtros {
       this.busca ||
       this.categorias.length > 0 ||
       this.tags.length > 0 ||
+      this.tipos.length > 0 ||
       this.autor ||
       this.periodoAno[0] !== null ||
       this.periodoAno[1] !== null ||
@@ -227,6 +238,20 @@ class Filtros {
         tipo: 'tag',
         valor: tag,
         label: `#${tag}`,
+      });
+    });
+
+    this.tipos.forEach(t => {
+      const labels = {
+        aforismo: '📖 Aforismo',
+        citacao: '📚 Citação',
+        filme: '🎬 Filme',
+        dito: '💬 Dito',
+      };
+      ativos.push({
+        tipo: 'tipo',
+        valor: t,
+        label: labels[t] || t,
       });
     });
 
