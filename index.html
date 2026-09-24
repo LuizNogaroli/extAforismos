@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>extAforismos — Caderno de Aforismos</title>
+  <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+  <!-- Header (Breadcrumb + Tema) -->
+  <header class="header">
+    <button id="btn-menu-toggle" class="btn-icon" aria-label="Menu">☰</button>
+    <div class="header-title">Aforismos</div>
+    <button id="btn-theme-toggle" class="btn-icon" aria-label="Modo escuro/claro">☀️</button>
+  </header>
+
+  <!-- Sidebar (Menu Lateral) -->
+  <aside id="sidebar" class="sidebar closed">
+    <nav class="nav">
+      <button class="nav-item active" data-view="listagem" onclick="app.navigate('listagem')">
+        📚 Listagem
+      </button>
+      <button class="nav-item" data-view="categorias" onclick="app.navigate('categorias')">
+        🏷️ Categorias
+      </button>
+      <button class="nav-item" data-view="novo" onclick="app.navigate('novo')">
+        ✍️ Novo Aforismo
+      </button>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main id="main-content">
+    <!-- View: Listagem de Aforismos -->
+    <section id="view-listagem" class="view active">
+      <!-- Cabeçalho de Filtros -->
+      <div class="filtros-container">
+        <div class="filtro-busca">
+          <input
+            id="filtro-busca"
+            type="text"
+            placeholder="🔍 Buscar aforismo, autor, obra..."
+            class="input-busca"
+          >
+        </div>
+
+        <div class="filtros-row">
+          <!-- Categorias -->
+          <div class="filtro-grupo">
+            <label class="filtro-label">Categorias:</label>
+            <div id="filtro-categorias" class="filtro-pills">
+              <!-- Preenchido por JS -->
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div class="filtro-grupo">
+            <label class="filtro-label">Tags:</label>
+            <div id="filtro-tags" class="filtro-pills">
+              <!-- Preenchido por JS -->
+            </div>
+          </div>
+        </div>
+
+        <div class="filtros-row">
+          <!-- Autor -->
+          <div class="filtro-grupo">
+            <label class="filtro-label">Autor:</label>
+            <select id="filtro-autor" class="input-select">
+              <option value="">Todos</option>
+            </select>
+          </div>
+
+          <!-- Época -->
+          <div class="filtro-grupo">
+            <label class="filtro-label">Época:</label>
+            <input
+              id="filtro-epoca-min"
+              type="number"
+              placeholder="De"
+              class="input-number"
+            >
+            <span class="filtro-separator">até</span>
+            <input
+              id="filtro-epoca-max"
+              type="number"
+              placeholder="Até"
+              class="input-number"
+            >
+          </div>
+
+          <!-- Favoritos -->
+          <div class="filtro-grupo">
+            <label class="checkbox-label">
+              <input id="filtro-favoritos" type="checkbox" class="input-checkbox">
+              ★ Favoritos
+            </label>
+          </div>
+
+          <!-- Ordenação -->
+          <div class="filtro-grupo">
+            <label class="filtro-label">Ordenar:</label>
+            <select id="filtro-ordem" class="input-select">
+              <option value="recentes">Mais recentes</option>
+              <option value="autor">Autor (A–Z)</option>
+              <option value="cronologico">Cronológico</option>
+              <option value="aleatorio">Aleatório</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Filtros Ativos + Botões -->
+        <div class="filtros-acao">
+          <div id="filtros-ativos" class="filtros-ativos">
+            <!-- Preenchido por JS -->
+          </div>
+          <button id="btn-limpar-filtros" class="btn secondary" style="display:none;">
+            Limpar filtros
+          </button>
+          <button id="btn-novo-aforismo" class="btn primary">
+            ✍️ Novo Aforismo
+          </button>
+        </div>
+
+        <!-- Contador de Resultados -->
+        <div class="resultado-info">
+          <span id="resultado-contador">0 aforismos</span>
+        </div>
+      </div>
+
+      <!-- Lista de Aforismos -->
+      <div id="listagem-container" class="listagem-container">
+        <ul id="aforismos-list" class="aforismos-list">
+          <!-- Preenchido por JS -->
+        </ul>
+      </div>
+
+      <!-- Paginação -->
+      <div id="paginacao" class="paginacao">
+        <div class="paginacao-info">
+          Itens por página:
+          <select id="paginacao-itens" class="input-select" style="width: auto;">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+        <div class="paginacao-controles">
+          <button id="paginacao-anterior" class="btn secondary" onclick="app.paginacaoAnterior()">
+            ‹ Anterior
+          </button>
+          <span id="paginacao-info-pagina" class="paginacao-info-pagina">Página 1 de 1</span>
+          <button id="paginacao-proximo" class="btn secondary" onclick="app.paginacaoProximo()">
+            Próximo ›
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- View: Gerenciar Categorias -->
+    <section id="view-categorias" class="view">
+      <h2>Gerenciar Categorias</h2>
+      <div id="categorias-container" class="categorias-container">
+        <!-- Preenchido por JS -->
+      </div>
+      <button id="btn-nova-categoria" class="btn primary">
+        + Nova Categoria
+      </button>
+    </section>
+
+    <!-- View: Novo/Editar Aforismo -->
+    <section id="view-novo" class="view">
+      <h2 id="novo-titulo">Novo Aforismo</h2>
+      <form id="form-aforismo" class="form-aforismo">
+        <div class="form-group">
+          <label for="form-texto">Aforismo *</label>
+          <textarea
+            id="form-texto"
+            name="texto"
+            required
+            placeholder="Digite o aforismo..."
+            rows="4"
+            class="input-textarea"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-autor">Autor</label>
+            <input
+              id="form-autor"
+              name="autor"
+              type="text"
+              placeholder="Ex: Sêneca"
+              class="input-text"
+            >
+          </div>
+          <div class="form-group">
+            <label for="form-obra">Obra</label>
+            <input
+              id="form-obra"
+              name="obra"
+              type="text"
+              placeholder="Ex: Cartas a Lucílio"
+              class="input-text"
+            >
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-epoca">Época</label>
+            <input
+              id="form-epoca"
+              name="epoca"
+              type="text"
+              placeholder="Ex: c. 65 d.C."
+              class="input-text"
+            >
+          </div>
+          <div class="form-group">
+            <label for="form-ano">Ano (para ordenar)</label>
+            <input
+              id="form-ano"
+              name="anoReferencia"
+              type="number"
+              placeholder="Ex: 65 ou -500 (a.C.)"
+              class="input-number"
+            >
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-idioma">Idioma Original</label>
+            <input
+              id="form-idioma"
+              name="idiomaOriginal"
+              type="text"
+              placeholder="Ex: latim"
+              class="input-text"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-texto-original">Texto Original</label>
+          <textarea
+            id="form-texto-original"
+            name="textoOriginal"
+            placeholder="Texto em idioma original..."
+            rows="3"
+            class="input-textarea"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-categorias">Categorias</label>
+            <div id="form-categorias" class="form-categorias">
+              <!-- Preenchido por JS (checkboxes) -->
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="form-tags">Tags (separadas por vírgula)</label>
+            <input
+              id="form-tags"
+              name="tags"
+              type="text"
+              placeholder="Ex: coragem, ação, superação"
+              class="input-text"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-notas">Notas Pessoais</label>
+          <textarea
+            id="form-notas"
+            name="notas"
+            placeholder="Suas reflexões sobre este aforismo..."
+            rows="3"
+            class="input-textarea"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input id="form-favorito" name="favorito" type="checkbox" class="input-checkbox">
+            ★ Favorito
+          </label>
+        </div>
+
+        <div class="form-acao">
+          <button type="submit" class="btn primary">Salvar</button>
+          <button type="button" class="btn secondary" onclick="app.navigate('listagem')">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- Modal: Leitura de Aforismo (Vintage) -->
+  <div id="modal-leitura" class="modal-backdrop" onclick="if (event.target === this) app.fecharModalLeitura()">
+    <div class="modal modal-vintage" onclick="event.stopPropagation()">
+      <div class="modal-header-vintage">
+        <button class="btn-close" onclick="app.fecharModalLeitura()">✕</button>
+      </div>
+      <div class="modal-content-vintage">
+        <!-- Preenchido por JS -->
+      </div>
+      <div class="modal-footer-vintage">
+        <button id="btn-modal-anterior" class="btn ghost" onclick="app.navegarModalAnterior()">
+          ‹ Anterior
+        </button>
+        <button id="btn-modal-editar" class="btn ghost" onclick="app.editarAforismoDoModal()">
+          ✎ Editar
+        </button>
+        <button id="btn-modal-favorito" class="btn ghost" onclick="app.toggleFavoritoDoModal()">
+          ★ Favorito
+        </button>
+        <button id="btn-modal-proxximo" class="btn ghost" onclick="app.navegarModalProximo()">
+          Próximo ›
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Gerenciar Categoria (não usado ainda, será adicionado) -->
+
+  <!-- Scripts -->
+  <script src="js/utils.js"></script>
+  <script src="js/StorageService.js"></script>
+  <script src="js/seeds/categorias.js"></script>
+  <script src="js/seeds/aforismos.js"></script>
+  <script src="js/AforismoManager.js"></script>
+  <script src="js/Filtros.js"></script>
+  <script src="js/uiListagem.js"></script>
+  <script src="js/modalAforismoLeitura.js"></script>
+  <script src="js/uiCadastro.js"></script>
+  <script src="js/uiCategorias.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

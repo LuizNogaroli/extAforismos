@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "extAforismos",
+  "version": "0.1.0",
+  "description": "Um caderno pessoal de aforismos com categorias, tags e filtros. Visual vintage e literário.",
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_title": "extAforismos — Aforismos",
+    "default_popup": "index.html"
+  },
+  "icons": {
+    "16": "assets/icon-16.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  }
+}
